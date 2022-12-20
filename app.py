@@ -25,7 +25,13 @@ def random_bio_prompt(name):
     return f"{introduction} {name} {trail}"
 
 
+def random_sd_prompt():
+    sample = random.sample(data["sd_prompts"], 5)
+    prompts = ", ".join(sample)
+    return f"mdjrny-v4 style, human, {prompts}"
+
 # Data generating methods
+
 
 def fetch_data_stylegan():
     response = requests.request("GET", API_URL[0])
@@ -36,9 +42,14 @@ def fetch_data_stylegan():
 
 
 def fetch_data_openjourney():
-    data = json.dumps(
-        "mdjrny-v4 style, human, photography, selfie, high quality, taken from an iPhone")
+    prompts = random_sd_prompt()
+    data = json.dumps(prompts)
     response = requests.request("POST", API_URL[1], headers=headers, data=data)
+
+    if (response.status_code >= 400):
+        print(
+            f"Returned with status code [{response.status_code}]. Model is busy. Fetching StyleGAN2 image now...")
+        return fetch_data_stylegan()
 
     response_file_name = "openjourney.jpeg"
     with open(response_file_name, "wb") as f:
@@ -93,7 +104,7 @@ with ProfileGen:
           <center>
             This space generates an imaginary profile of a person that does not exist, with the use of open-source machine learning models.
         """)
-
+    generate_btn = gr.Button(value="Generate", variant="primary")
     with gr.Row():
         with gr.Column(scale=1):
             image = gr.Image(shape=[420, 420], elem_id="output_image")
@@ -102,7 +113,6 @@ with ProfileGen:
                                          type="index",
                                          label="Model")
         with gr.Column(scale=2):
-            generate_btn = gr.Button(value="Generate", variant="primary")
             with gr.Row():
                 name = gr.Textbox(label="👋 Name")
                 location = gr.Textbox(label="📍 Location")

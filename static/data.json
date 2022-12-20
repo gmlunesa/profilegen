@@ -211,5 +211,13 @@
     "and I like to",
     "and my favorite", 
     "and I am"
+  ],
+  "sd_prompts": [
+    "photography", 
+    "selfie", 
+    "high quality", 
+    "taken from an iPhone",
+    "portrait",
+    "photo"
   ]
 }
