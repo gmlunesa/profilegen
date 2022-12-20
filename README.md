@@ -13,7 +13,7 @@ license: mit
 # 🔮 ProfileGen
 
 <a href="https://huggingface.co/spaces/lunesa/ProfileGen">
-  <img src="https://img.shields.io/badge/Visit%20Demo-064E3B.svg?&style=for-the-badge&logoColor=white" alt="Visit Demo"/>
+  <img src="https://img.shields.io/badge/🤗%20Visit%20Demo-8B5CF6.svg?&style=for-the-badge&logoColor=white" alt="Visit Space"/>
 </a>
 <a href="https://gmlunesa.com/notox/#/about">
   <img src="https://img.shields.io/badge/gmlunesa.com-E11d48.svg?&style=for-the-badge&logoColor=white" alt="gmlunesa.com"/>
@@ -25,9 +25,11 @@ ProfileGen generates an imaginary profile of a person that does not exist, with 
 
 ## Machine Learning models
 
-| Model    | Task            | Training Dataset                  |
-| -------- | --------------- | --------------------------------- |
-| GPT-J 6B | Text Generation | [Pile](https://pile.eleuther.ai/) |
+| Model            | Citation                                                                        | How it's used in this demo     |
+| ---------------- | ------------------------------------------------------------------------------- | ------------------------------ |
+| GPT-J 6B         | [Wang et al., 2021](https://github.com/kingoflolz/mesh-transformer-jax)         | 💬 Text generation for the bio |
+| StyleGAN2        | [Karras et al., 2020](https://arxiv.org/abs/1912.04958)                         | 💆‍♀️ Generate faces              |
+| Stable Diffusion | [Rombach et al., 2022](https://ommer-lab.com/research/latent-diffusion-models/) | 💆‍♀️ Generate faces              |
 
 ## Stack
 

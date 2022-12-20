@@ -2,11 +2,15 @@ import gradio as gr
 import json
 import random
 import os
+import requests
 
 # Load models through the Hugging Face Inference API
 # Get HuggingFace access token from secrets for increased quota.
 HF_TOKEN = os.environ.get("HF_TOKEN")
-gpt_j = gr.Interface.load("huggingface/EleutherAI/gpt-j-6B")
+gpt_j = gr.Interface.load("huggingface/EleutherAI/gpt-j-6B", api_key=HF_TOKEN)
+API_URL = ["https://thispersondoesnotexist.com/image",
+           "https://api-inference.huggingface.co/models/prompthero/openjourney"]
+headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 # Load static data
 with open('./static/data.json', 'r') as data_file:
@@ -20,7 +24,35 @@ def random_bio_prompt(name):
     trail = random.choice(data["trails"])
     return f"{introduction} {name} {trail}"
 
+
 # Data generating methods
+
+def fetch_data_stylegan():
+    response = requests.request("GET", API_URL[0])
+    response_file_name = "stylegan.jpeg"
+    with open(response_file_name, 'wb') as f:
+        f.write(response.content)
+    return response_file_name
+
+
+def fetch_data_openjourney():
+    data = json.dumps(
+        "mdjrny-v4 style, human, photography, selfie, high quality, taken from an iPhone")
+    response = requests.request("POST", API_URL[1], headers=headers, data=data)
+
+    response_file_name = "openjourney.jpeg"
+    with open(response_file_name, "wb") as f:
+        f.write(response.content)
+    return response_file_name
+
+
+def generate_image(imageModelType):
+    if (imageModelType == 1):
+        img = fetch_data_openjourney()
+        return gr.update(value=img)
+    else:
+        img = fetch_data_stylegan()
+        return gr.update(value=img)
 
 
 def generate_name():
@@ -39,15 +71,16 @@ def generate_bio(name):
     return f"{trimmed_gpt_output}."
 
 
-def generate_profile():
+def generate_profile(imageModelType):
     # Consolidate all data from the generating methods
+    image = generate_image(imageModelType)
     name = generate_name()
     location = generate_city()
     bio = generate_bio(name)
-    return name, location, bio, gr.update(visible=True)
+    return image, name, location, bio
 
 
-ProfileGen = gr.Blocks()
+ProfileGen = gr.Blocks(css="#output_image{width: 420px}")
 with ProfileGen:
     gr.Markdown(
         """
@@ -58,26 +91,44 @@ with ProfileGen:
             🤖🤖🤖
           </center>
           <center>
-            This space generates an imaginary profile of a person that does not exist, with the use of machine learning models.
-          </center>
-          <center style="color:gray;font-size:11px;font-style:italic">
-            ⚠ Any resemblance to actual persons, living or dead, or actual events is purely coincidental.
-          </center>
-          <center>
-            <a href="https://gmlunesa.com">
-              <img src="https://img.shields.io/badge/gmlunesa.com-E11d48.svg?&style=for-the-badge&logoColor=white" alt="gmlunesa.com"/>
-            </a>
-          </center>
+            This space generates an imaginary profile of a person that does not exist, with the use of open-source machine learning models.
         """)
-    generate_btn = gr.Button(value="Generate", variant="primary")
+
     with gr.Row():
-        with gr.Column():
-            name = gr.Textbox(label="👋 Name")
-        with gr.Column():
-            location = gr.Textbox(label="📍 Location")
-    bio = gr.Textbox(label="✨ Bio")
-    generate_btn.click(fn=generate_profile, inputs=None, outputs=[
-                       name, location, bio], api_name="generate_text")
+        with gr.Column(scale=1):
+            image = gr.Image(shape=[420, 420], elem_id="output_image")
+            imageModelType = gr.Dropdown(["StyleGAN2", "Stable Diffusion"],
+                                         value="StyleGAN2",
+                                         type="index",
+                                         label="Model")
+        with gr.Column(scale=2):
+            generate_btn = gr.Button(value="Generate", variant="primary")
+            with gr.Row():
+                name = gr.Textbox(label="👋 Name")
+                location = gr.Textbox(label="📍 Location")
+            bio = gr.Textbox(label="✨ Bio")
+            generate_btn.click(fn=generate_profile, inputs=imageModelType, outputs=[
+                               image, name, location, bio], api_name="generate_text")
+    gr.Markdown("""
+        <center>
+
+          | Model            | Citation                                                                        | How it's used in this demo     |
+          | ---------------- | ------------------------------------------------------------------------------- | ------------------------------ |
+          | GPT-J 6B         | [Wang et al., 2021](https://github.com/kingoflolz/mesh-transformer-jax)         | 💬 Text generation for the bio |
+          | StyleGAN2        | [Karras et al., 2020](https://arxiv.org/abs/1912.04958)                         | 💆‍♀️ Generate faces              |
+          | Stable Diffusion | [Rombach et al., 2022](https://ommer-lab.com/research/latent-diffusion-models/) | 💆‍♀️ Generate faces              |
+
+        </center>
+        <center>
+          ⚠ <span style="color:gray;font-size:11px;font-style:italic">Any resemblance to actual persons, living or dead, or actual events is purely coincidental.</span>
+          <br />
+          ⌛ <span style="color:gray;font-size:11px;font-style:italic">Image generation through the OpenJourney model might take a while.</span>
+          </ul>
+          <a href="https://gmlunesa.com">
+            <img src="https://img.shields.io/badge/gmlunesa.com-E11d48.svg?&style=for-the-badge&logoColor=white" alt="gmlunesa.com"/>
+          </a>
+        </center>
+    """)
 
 
 ProfileGen.launch()
