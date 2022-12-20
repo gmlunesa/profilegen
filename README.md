@@ -36,6 +36,12 @@ ProfileGen generates an imaginary profile of a person that does not exist, with 
 | <img src="https://raw.githubusercontent.com/yurijserrano/Github-Profile-Readme-Logos/master/programming%20languages/python.svg" width="100" height="100" alt="React"> |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
+## Notes
+
+- ⌛ Image generation through the Stable Diffusion (OpenJourney) model might take a while.
+- 💆‍♀️ If the Stable Diffusion (OpenJourney) model is busy, the image will be sourced from the StyleGAN API.
+- ⚠ Any resemblance to actual persons, living or dead, or actual events is purely coincidental.
+
 ## License
 
 [MIT 🌱 Fully open-source](https://github.com/gmlunesa/ProfileGen/blob/main/LICENSE)

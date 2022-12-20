@@ -49,6 +49,7 @@ def fetch_data_openjourney():
     if (response.status_code >= 400):
         print(
             f"Returned with status code [{response.status_code}]. Model is busy. Fetching StyleGAN2 image now...")
+        print(response.content)
         return fetch_data_stylegan()
 
     response_file_name = "openjourney.jpeg"
@@ -118,7 +119,7 @@ with ProfileGen:
                 location = gr.Textbox(label="📍 Location")
             bio = gr.Textbox(label="✨ Bio")
             generate_btn.click(fn=generate_profile, inputs=imageModelType, outputs=[
-                               image, name, location, bio], api_name="generate_text")
+                               image, name, location, bio], api_name="generate")
     gr.Markdown("""
         <center>
 
