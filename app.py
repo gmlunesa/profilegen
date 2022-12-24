@@ -7,9 +7,9 @@ import requests
 # Load models through the Hugging Face Inference API
 # Get HuggingFace access token from secrets for increased quota.
 HF_TOKEN = os.environ.get("HF_TOKEN")
-gpt_j = gr.Interface.load("huggingface/EleutherAI/gpt-j-6B", api_key=HF_TOKEN)
 API_URL = ["https://thispersondoesnotexist.com/image",
-           "https://api-inference.huggingface.co/models/prompthero/openjourney"]
+           "https://api-inference.huggingface.co/models/prompthero/openjourney",
+           "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6B"]
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 # Load static data
@@ -58,6 +58,20 @@ def fetch_data_openjourney():
     return response_file_name
 
 
+def fetch_data_gptj(name):
+    prompt = random_bio_prompt(name)
+    data = {
+        "inputs": prompt,
+    }
+    response = requests.request("POST", API_URL[2], headers=headers, json=data)
+
+    if (response.status_code >= 400):
+        return "❌ GPT-J 6B model is busy..."
+
+    result = response.json()
+    return result[0]["generated_text"]
+
+
 def generate_image(imageModelType):
     if (imageModelType == 1):
         img = fetch_data_openjourney()
@@ -77,7 +91,7 @@ def generate_city():
 
 def generate_bio(name):
     # Access the GPT_J using the prompt as input
-    raw_gpt_output = gpt_j(random_bio_prompt(name))
+    raw_gpt_output = fetch_data_gptj(name)
     # Truncate the string until the last properly formed sentence
     trimmed_gpt_output = raw_gpt_output.rsplit('.', 1)[0]
     return f"{trimmed_gpt_output}."
